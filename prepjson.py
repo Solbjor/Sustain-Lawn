@@ -25,7 +25,7 @@ annotations = {**annotations1, **annotations2}
 images = []
 masks = []
 
-desired_size = (150, 150)  # Define the desired size (width, height)
+desired_size = (300, 300)  # Define the desired size (width, height)
 
 for key, value in annotations.items():
     filename = value['filename']
@@ -61,15 +61,18 @@ np.save('y_train.npy', masks)
 X_train, X_val, y_train, y_val = train_test_split(images, masks, test_size=0.2, random_state=42)
 
 # Print a few images for visualization
-num_images_to_display = 3  # You can adjust this based on how many images you want to display
+num_images_to_display = 1  # You can adjust this based on how many images you want to display
 
 for i in range(num_images_to_display):
     plt.figure(figsize=(8, 8))
-    
+   
+    # Convert BGR to RGB for display
+    image_rgb = cv2.cvtColor(X_train[i], cv2.COLOR_BGR2RGB)
+
     plt.subplot(1, 2, 1)
-    plt.imshow(X_train[i])
+    plt.imshow(image_rgb)
     plt.title(f'Training Image {i+1}')
-    
+   
     plt.subplot(1, 2, 2)
     plt.imshow(y_train[i], cmap='gray')
     plt.title(f'Training Mask {i+1}')

@@ -26,7 +26,7 @@ annotations = {**annotations1, **annotations2}
 images = []
 masks = []
 
-desired_size = (260, 260)  # Define the desired size (width, height)
+desired_size = (300, 300)  # Define the desired size (width, height)
 
 for key, value in annotations.items():
     filename = value['filename']
@@ -58,13 +58,13 @@ masks = np.array(masks)
 X_train, X_val, y_train, y_val = train_test_split(images, masks, test_size=0.2, random_state=42)
 
 # Now, reshape data for model training
-X_train_reshaped = X_train.reshape(-1, 260, 260, 3)
-y_train_reshaped = y_train.reshape(-1, 260, 260, 1)
-X_val_reshaped = X_val.reshape(-1, 260, 260, 3)
-y_val_reshaped = y_val.reshape(-1, 260, 260, 1)
+X_train_reshaped = X_train.reshape(-1, 300, 300, 3)
+y_train_reshaped = y_train.reshape(-1, 300, 300, 1)
+X_val_reshaped = X_val.reshape(-1, 300, 300, 3)
+y_val_reshaped = y_val.reshape(-1, 300, 300, 1)
 
 # Define the U-Net model
-def unet_model(input_size=(260, 260, 3)):
+def unet_model(input_size=(300, 300, 3)):
     inputs = Input(input_size)
     
     # Down-sampling
@@ -93,6 +93,6 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy']
 # Train the model
 model.fit(X_train_reshaped, y_train_reshaped, validation_data=(X_val_reshaped, y_val_reshaped), epochs=10, batch_size=32)
 
-model.save('TeamsAI.h5')
+model.save('ACroppingAI.h5')
 
 print("Done!")
