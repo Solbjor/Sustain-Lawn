@@ -1,35 +1,48 @@
-import pandas as pd
-import cv2
 import os
+import json
+import cv2
 import tensorflow as tf
 
-# Load VIA annotations from CSV file
-csv_file_path = 'path_to_your_csv_file.csv'
-annotations = pd.read_csv(csv_file_path)
+# Path to the JSON file containing annotations
+json_file_path = r'C:\Users\s0lbj\OneDrive\Desktop\sustainApp/test.json'
 
-# Function to parse annotation string from VIA and return as list of coordinates
-def parse_annotation(annotation_str):
-    # Assuming the format is like: x1,y1,x2,y2,... for polygons
-    return [int(num) for num in annotation_str.split(',')]
+# Directory containing images
+image_dir = r'C:\Users\s0lbj\OneDrive\Desktop\homeImages'
+
+# Check if the JSON file exists
+if not os.path.exists(json_file_path):
+    print("JSON file not found:", json_file_path)
+else:
+    print("JSON file found. Reading data...")
+
+    # Load annotations from JSON file
+    with open(json_file_path, 'r') as json_file:
+        annotations = json.load(json_file)
+
+    print("JSON data loaded successfully.")
 
 # Prepare your data structure for TensorFlow
 data_for_tf = []
 
-# Directory containing images
-image_dir = 'path_to_your_images_directory'
-
-for _, row in annotations.iterrows():
-    image_path = os.path.join(image_dir, row['filename'])
+for key, item in annotations.items():
+    filename = item['filename']
+    image_path = os.path.join(image_dir, filename)
     image = cv2.imread(image_path)
+
     # Check if the image is loaded properly
     if image is not None:
-        # Parse the annotation
-        region = parse_annotation(row['region_shape_attributes'])
-        # Append image and its annotations
-        data_for_tf.append((image, region))
+        # Assuming 'regions' is a list of dictionaries containing 'shape_attributes'
+        for region in item['regions']:
+            points_x = region['shape_attributes']['all_points_x']
+            points_y = region['shape_attributes']['all_points_y']
 
-# Convert data to TensorFlow Dataset
-dataset = tf.data.Dataset.from_tensor_slices(data_for_tf)
+            for i in range(len(points_x)):
+                start_point = (points_x[i], points_y[i])
+                end_point = (points_x[(i + 1) % len(points_x)], points_y[(i + 1) % len(points_y)])
+                cv2.line(image, start_point, end_point, (0, 255, 0), 2)
 
-# Further processing like normalization, batching etc. goes here
-
+        cv2.imshow('Annotated Image', image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print(f"Failed to load image: {image_path}")
